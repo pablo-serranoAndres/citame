@@ -14,8 +14,8 @@ SET @tabla_existe = (
 IF @tabla_existe = 0 THEN
 	CREATE TABLE User_login (id bigint not null, email varchar(256), phone varchar(16),
                              name varchar(32) not null, password varchar(128),
-                             verificacion varchar (16), fecha_alta datetime(6), fecha_baja datetime(6),
-                             fecha_registro_email datetime(6), fecha_verificacion_email datetime(6),
+                             verification varchar (16), registrationDate datetime(6), deactivationDate datetime(6),
+                             emailRegistrationDate datetime(6), emailVerificationDate datetime(6),
                              primary key (id)) engine=InnoDB;
 	ALTER TABLE User_login ADD CONSTRAINT UK_User_login_email unique (email);
 	ALTER TABLE User_login ADD CONSTRAINT UK_User_login_phone unique (phone);
