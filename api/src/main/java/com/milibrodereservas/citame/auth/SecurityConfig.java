@@ -10,12 +10,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    // definicion de la cadena de filtros
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/citame/public/**").permitAll() // permite sin autenticación
+                        .requestMatchers("/citame/public/**", "/citame/auth/**").permitAll() // permite sin autenticación
                         .anyRequest().authenticated() // el resto necesita autenticación
                 );
 
