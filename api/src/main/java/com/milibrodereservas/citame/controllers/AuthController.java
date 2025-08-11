@@ -4,7 +4,6 @@ import com.milibrodereservas.citame.global.Base;
 import com.milibrodereservas.citame.model.LoginRequest;
 import com.milibrodereservas.citame.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
