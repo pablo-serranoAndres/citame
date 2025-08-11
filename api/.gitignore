@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+/swagger-ui/node_modules/
+

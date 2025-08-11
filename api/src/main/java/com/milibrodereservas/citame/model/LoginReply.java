@@ -1,12 +1,12 @@
 package com.milibrodereservas.citame.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-public class LoginRequest {
-    @Schema(description = "email o phone para autenticar", example = "guest@citame.com")
-    private String userName;
-    @Schema(description = "Password", example = "guest")
-    private String password;
+@AllArgsConstructor
+public class LoginReply {
+    @Schema(description = "Token JWT para autenticación", example = "eyJhbGciOiJIUzI1NiIs...")
+    private String token;
 }
