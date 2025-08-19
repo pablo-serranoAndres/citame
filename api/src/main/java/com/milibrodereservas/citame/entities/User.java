@@ -15,6 +15,14 @@ import java.util.Date;
 @Data
 @Entity
 @Table (name = "user_login")
+@TableGenerator(
+		name = "id_user_login",
+		table = "hibernate_sequences",
+		pkColumnName = "sequence_name",
+		valueColumnName = "next_val",
+		pkColumnValue = "id_user_login",
+		allocationSize = 1
+)
 public class User implements Serializable {
 
 	private static final long serialVersionUID = 980703184498702056L;
@@ -24,7 +32,7 @@ public class User implements Serializable {
 	public static final int LENGTH_FIELD_EMAIL = 256;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.TABLE)
+	@GeneratedValue(strategy = GenerationType.TABLE, generator = "id_user_login")
 	private Long id;
 	@Column(length=256, nullable=false, unique=true)
 	private String email;
@@ -44,7 +52,7 @@ public class User implements Serializable {
 	public User() {
 		super();
 		this.registrationDate = new Date();
-		this.verification = RandomStringUtils.secure().next(LENGTH_VERIFICACION);
+		this.verification = RandomStringUtils.randomAlphanumeric(LENGTH_VERIFICACION);;
 	}
 
 }

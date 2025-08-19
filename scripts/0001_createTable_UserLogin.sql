@@ -12,10 +12,16 @@ SET @tabla_existe = (
 );
 -- crear la tabla si no existe
 IF @tabla_existe = 0 THEN
-	CREATE TABLE User_login (id bigint not null, email varchar(256), phone varchar(16),
-                             name varchar(32) not null, password varchar(128),
-                             verification varchar (16), registrationDate datetime(6), deactivationDate datetime(6),
-                             emailRegistrationDate datetime(6), emailVerificationDate datetime(6),
+	CREATE TABLE User_login (id bigint not null COMMENT 'PK', 
+                             email varchar(256) COMMENT 'Correo electrónico. Unico porque sirve para loguear (alternativo a phone)',
+                             phone varchar(16) COMMENT 'Teléfono. Unico porque sirve para loguear (alternativo a email)',
+                             name varchar(32) not null COMMENT 'Nombre (puede coincidir con otros usuarios)',
+                             password varchar(128) COMMENT 'Contraseña encriptada',
+                             verification varchar (16) COMMENT 'Código aleatorio generado automáticamente para verificación de email',
+                             registrationDate datetime(6) COMMENT 'Fecha de alta',
+                             deactivationDate datetime(6) COMMENT 'Fecha de baja (si no null el usuario está inactivo)',
+                             emailRegistrationDate datetime(6) COMMENT 'Fecha de registro de email', 
+                             emailVerificationDate datetime(6) COMMENT 'Fecha de verificación de email (si null pendiente de verificar y no se admite para login)',
                              primary key (id)) engine=InnoDB;
 	ALTER TABLE User_login ADD CONSTRAINT UK_User_login_email unique (email);
 	ALTER TABLE User_login ADD CONSTRAINT UK_User_login_phone unique (phone);
