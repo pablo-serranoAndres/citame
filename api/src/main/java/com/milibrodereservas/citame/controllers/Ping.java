@@ -1,5 +1,6 @@
 package com.milibrodereservas.citame.controllers;
 
+import com.milibrodereservas.citame.auth.CustomUserDetails;
 import com.milibrodereservas.citame.global.Base;
 import com.milibrodereservas.citame.model.LoginReply;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,8 +54,8 @@ public class Ping extends Base {
                     content = @Content(schema = @Schema(hidden = true)) // <-- sin body
             )
     })
-    public String getPrivatePing(@AuthenticationPrincipal String userName) {
+    public String getPrivatePing(@AuthenticationPrincipal CustomUserDetails user) {
         logger.info("GET /citame/priv/ping");
-        return "pong " + userName;
+        return "pong " + user.getUsername();
     }
 }
