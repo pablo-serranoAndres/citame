@@ -12,15 +12,16 @@ SET @tabla_existe = (
 );
 -- crear la tabla si no existe
 IF @tabla_existe = 0 THEN
-	CREATE TABLE Business (id bigint not null,
-                           idString varchar(16) not null COMMENT 'Identificador único generado para identificar el negocio',
+	CREATE TABLE Business (id bigint not null COMMENT 'PK',
+                           idString varchar(32) not null COMMENT 'Identificador visible único del negocio',
                            email varchar(256) COMMENT 'Correo electrónico (puede estar repetido y no ser válido)',
                            phone varchar(16) COMMENT 'Teléfono (puede estar repatido y no ser válido)',
                            name varchar(80) not null COMMENT 'Nombre negocio',
                            registrationDate datetime(6) COMMENT 'Fecha alta',
                            deactivationDate datetime(6) COMMENT 'Fecha baja (si no null el negocio está desactivado)',
+                           bookingDays int COMMENT 'Días posibles de reservas anticipadas (null sin limite)',
                            primary key (id)) engine=InnoDB;
-	ALTER TABLE Business ADD CONSTRAINT UK_Businnes_idString unique (idString);
+	ALTER TABLE Business ADD CONSTRAINT UK_Business_idString unique (idString);
 END IF;
 END //
 

@@ -1,6 +1,10 @@
 package com.milibrodereservas.citame.global;
 
 import com.milibrodereservas.citame.entities.User;
+import com.milibrodereservas.citame.model.BusinessDto;
+import com.milibrodereservas.citame.model.ServiceDto;
+import com.milibrodereservas.citame.repositories.BusinessRepository;
+import com.milibrodereservas.citame.repositories.ServiceRepository;
 import com.milibrodereservas.citame.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -21,6 +25,8 @@ public class RepositoryRegistry {
     public RepositoryRegistry(ApplicationContext ctx) {
         // Registro de las relaciones entidad -> DAO manualmente
         repoMap.put(User.class, ctx.getBean(UserRepository.class));
+        repoMap.put(BusinessDto.class, ctx.getBean(BusinessRepository.class));
+        repoMap.put(ServiceDto.class, ctx.getBean(ServiceRepository.class));
     }
 
     public JpaRepository<?, ?> getRepoForEntity(Class<?> entityClass) {

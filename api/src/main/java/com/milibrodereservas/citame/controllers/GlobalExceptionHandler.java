@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
     // Maneja tu propia ValidationException
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorReply> handleValidationException(ValidationException ex) {
-        return ResponseEntity.badRequest().body(new ErrorReply());
+        return ResponseEntity.badRequest().body(new ErrorReply(ex));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

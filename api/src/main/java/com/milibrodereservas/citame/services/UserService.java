@@ -2,6 +2,7 @@ package com.milibrodereservas.citame.services;
 
 import com.milibrodereservas.citame.auth.JwtUtil;
 import com.milibrodereservas.citame.entities.User;
+import com.milibrodereservas.citame.global.Base;
 import com.milibrodereservas.citame.model.UserDto;
 import com.milibrodereservas.citame.model.UserRegisterRequest;
 import com.milibrodereservas.citame.repositories.UserRepository;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class UserService {
+public class UserService extends Base {
     public static final int FIELD_EMAIL_OR_PHONE = 1;
     public static final int FIELD_EMAIL = 2;
     public static final int FIELD_PHONE = 4;
@@ -30,20 +31,24 @@ public class UserService {
     private JwtUtil jwtUtil;
 
     public String login (String userName, String password) {
+        logger.debug("UserService.login {}", userName);
         User user = repository.findByEmailOrPhone(userName, userName).orElse(null);
         if (user != null) {
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             // Verificar (en login):
             boolean matches = encoder.matches(password, user.getPassword());
             if (matches) {
+                logger.debug("aceptado");
                 return jwtUtil.generateToken(user);
             }
         }
+        logger.debug("denegado");
         return null;
     }
 
     @Transactional
     public UserDto register (UserRegisterRequest user) throws ValidationException {
+        logger.debug("UserService.register {} - {}", user.getEmail(), user.getPhone());
         if (!StringUtils.isBlank(user.getEmail())
                 && repository.findByEmailOrPhone(user.getEmail(), user.getEmail())
                 .orElse(null) != null) {
