@@ -21,6 +21,7 @@ public class JwtUtil {
         claims.put("userId", user.getId());
         claims.put("usermail", user.getEmail());
         claims.put("userphone", user.getPhone());
+        claims.put("username", user.getName());
 
         return Jwts.builder()
                 .setClaims(claims)

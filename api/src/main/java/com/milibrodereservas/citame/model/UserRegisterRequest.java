@@ -2,19 +2,16 @@ package com.milibrodereservas.citame.model;
 
 import com.milibrodereservas.citame.model.validations.EmailOrPhoneNotNull;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import org.apache.commons.lang3.RandomStringUtils;
 
 import java.io.Serializable;
-import java.util.Date;
 
 @Data
 @EmailOrPhoneNotNull(message = "email or phone are mandatory")
-public class UserRegisterRequest {
+public class UserRegisterRequest implements Serializable {
 	@Schema(description = "email para loguear (alternativo a phone)", example = "guest@citame.com")
 	@Email(message = "email format not valid")
 	@Size(max = 100, message = "email cannot be longer than 100 characters")
@@ -30,5 +27,4 @@ public class UserRegisterRequest {
 	@NotBlank(message = "password is mandatory")
 	@Size(min = 6, message = "password must be at least 6 characters long")
 	private String password;
-
 }

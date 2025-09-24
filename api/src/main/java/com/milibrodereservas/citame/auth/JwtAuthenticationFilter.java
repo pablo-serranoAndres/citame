@@ -44,10 +44,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             final String userName = claims.getSubject();
             final Long userId = claims.get("userId", Long.class);
+            final String phone = claims.get("userphone", String.class);
+            final String name = claims.get("username", String.class);
 
             // Aquí puedes añadir roles si los tienes
             List<GrantedAuthority> authorities = Collections.emptyList();
-            CustomUserDetails userDetails = new CustomUserDetails(userId, userName, authorities);
+            CustomUserDetails userDetails = new CustomUserDetails(userId, userName, phone, name, authorities);
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 

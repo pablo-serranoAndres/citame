@@ -4,9 +4,7 @@ import com.milibrodereservas.citame.auth.CustomUserDetails;
 import com.milibrodereservas.citame.global.Base;
 import com.milibrodereservas.citame.model.*;
 import com.milibrodereservas.citame.repositories.BusinessRepository;
-import com.milibrodereservas.citame.services.ServiceService;
-import com.milibrodereservas.citame.services.TimetableService;
-import com.milibrodereservas.citame.services.ValidationException;
+import com.milibrodereservas.citame.services.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -16,9 +14,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -33,9 +33,13 @@ public class OperationController extends Base {
     @Autowired
     private ServiceService serviceService;
     @Autowired
+    private ParametersService parameterService;
+    @Autowired
     private TimetableService timetableService;
     @Autowired
     private BusinessRepository businessRepository;
+    @Autowired
+    private AppointmentService appointmentService;
 
     @GetMapping("/services/{business}")
     @Operation(summary = "Lista servicios disponibles",
@@ -58,21 +62,46 @@ public class OperationController extends Base {
         return ResponseEntity.ok(reply);
     }
 
+    @GetMapping("/service_parameters/{idService}")
+    @Operation(summary = "Lista parámetros servicio",
+            description = "Devuelve una lista con los parámetros a editar al reservar un servicio",
+            security = { @SecurityRequirement(name = "bearerAuth") })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de parámetros",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ServiceParameterReply.class)))),
+            @ApiResponse(responseCode = "403", description = "No autorizado"),
+            @ApiResponse(responseCode = "400", description = "Servicio no encontrado", content = @Content)
+    })
+    public ResponseEntity<List<ServiceParameterReply>> getParametersByService(
+            @PathVariable Long idService, @AuthenticationPrincipal CustomUserDetails user) {
+        logger.info("GET /service_parameters/{} {}", idService, user.getUsername());
+
+        List<ParameterServiceDto> dtos = parameterService.getParametersByService(idService);
+        List<ServiceParameterReply> reply = new ArrayList<>();
+        for (ParameterServiceDto item : dtos) {
+            ServiceParameterReply param = new ServiceParameterReply();
+            param.loadFromObject(item.getParameter());
+            param.setDefaultValue(parameterService.setDefaultValue(item, user.getUserId()));
+            param.setRequired(item.getRequired());
+            reply.add(param);
+        }
+        return ResponseEntity.ok(reply);
+    }
+
     @GetMapping("/service_availability/{idService}")
     @Operation(summary = "Lista citas disponibles",
             description = "Devuelve una lista de horarios disponibles de un servicio",
             security = { @SecurityRequirement(name = "bearerAuth") })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de horarios",
-                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ServiceAvailabilityReply.class)))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ServiceAvailabilityReply.class))),
             @ApiResponse(responseCode = "403", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Servicio no encontrado", content = @Content)
+            @ApiResponse(responseCode = "400", description = "Servicio no encontrado", content = @Content)
     })
-    public ResponseEntity<List<ServiceAvailabilityReply>> getAvailabilityByService(
+    public ResponseEntity<ServiceAvailabilityReply> getAvailabilityByService(
             @PathVariable Long idService, @AuthenticationPrincipal CustomUserDetails user) {
         logger.info("GET /service_availability/{} {}", idService, user.getUsername());
-        List<ServiceAvailabilityReply> reply = new ArrayList<>();
-        reply.add(new ServiceAvailabilityReply(LocalDate.now()));
+        ServiceAvailabilityReply reply = serviceService.getAvailability(idService);
         return ResponseEntity.ok(reply);
     }
 
@@ -139,6 +168,87 @@ public class OperationController extends Base {
         }
 
         List<TimetableReply> reply = timetableService.getSchedules(business, start, end);
+        return ResponseEntity.ok(reply);
+    }
+
+    @PutMapping("/appointment/put")
+    @Operation(
+            summary = "Graba una cita",
+            description = "Graba una cita con los datos pasados en el body Json",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Objeto JSON con los datos a guardar",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = AppointmentRequest.class)
+                    )
+            ),
+            security = { @SecurityRequirement(name = "bearerAuth") }
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Cita guardada",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = AppointmentPutReply.class)))),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Parámetros inválidos o faltantes",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(responseCode = "403", description = "No autorizado", content = @Content),
+    })
+    @Transactional
+    public ResponseEntity<AppointmentPutReply> putAppointment(@RequestBody AppointmentRequest appointment, @AuthenticationPrincipal CustomUserDetails user) {
+        logger.info("PUT /appointment/put {} {}", appointment, user.getUsername());
+
+        // Guardar registro en appointments
+        ServiceDto service = serviceService.getServiceById(appointment.getIdService());
+        AppointmentDto dto = new AppointmentDto();
+        dto.setService(service);
+        dto.setUser(new UserDto(user.getUserId()));
+        dto.setBookingDate(appointment.getBookingDate());
+        dto.setStartTime(appointment.getStartTime());
+        dto.setEndTime(appointment.getStartTime());
+        dto = appointmentService.create(dto);
+
+        // Guardar registros en parameters_service_value y parameters_user_value
+        List<ParameterServiceDto> params = parameterService.getParametersByService(appointment.getIdService());
+        for (ParameterServiceDto param : params) {
+            ParameterValueRequest pv = null;
+            for (ParameterValueRequest pvr : appointment.getParametersValues()) {
+                if (pvr.getIdParameter().equals(param.getParameter().getId())) {
+                    pv = pvr;
+                    break;
+                }
+            }
+            if (pv != null) {
+                parameterService.saveParameterServiceValue(dto.getId(), param.getParameter().getId(),
+                        pv.getValue());
+                if (param.getStoreUserParam() != null) {
+                    parameterService.saveParameterUserValue(user.getUserId(), param.getParameter().getId(),
+                            pv.getValue());
+                }
+                appointment.getParametersValues().remove(pv);
+            } else if (param.getRequired()) {
+                throw new ValidationException("Parámetro " + param.getParameter().getName() + " es obligatorio",
+                        ValidationException.REQUIRED_VALUE,
+                        "parametersValues['" + param.getParameter().getName() + "']");
+            }
+        }
+        if (!appointment.getParametersValues().isEmpty()) {
+            String fields = "";
+            for (ParameterValueRequest item : appointment.getParametersValues()) {
+                if (StringUtils.isNotBlank(fields)) {
+                    fields += ", ";
+                }
+                ParameterDto param = parameterService.getParameterById(item.getIdParameter());
+                fields += (param != null) && (param.getBusiness().getId().equals(service.getBusiness().getId())) ?
+                        param.getName() : item.getIdParameter().toString();
+            }
+            throw new ValidationException("Parámetros no disponibles para servicio",
+                    ValidationException.NOT_FOUND_PARAM, fields);
+        }
+
+        AppointmentPutReply reply = new AppointmentPutReply(dto, user);
+
         return ResponseEntity.ok(reply);
     }
 }

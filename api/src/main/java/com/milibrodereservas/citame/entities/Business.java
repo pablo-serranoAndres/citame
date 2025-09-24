@@ -1,5 +1,6 @@
 package com.milibrodereservas.citame.entities;
 
+import com.milibrodereservas.citame.model.BusinessDto;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
@@ -8,11 +9,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-/**
- * Entity implementation class for Entity: User
- *
- */
 
 @Data
 @ToString(exclude = {"services", "timetables"})
@@ -43,10 +39,13 @@ public class Business implements Serializable {
 	private Date registrationDate; // Fecha alta
 	private Date deactivationDate; // Fecha baja (si no null el negocio está desactivado)
 	private Integer bookingDays; // Días posibles de reservas anticipadas (null sin limite)
+	private Integer prevBookingDays; // Días pasados hoy posible reservar (NULL = 0)
+	private Integer prevBookingMins; // Minutos pasados desde ahora posible reservar si prevBookingDays = 0 (NULL = 0)
+	private Integer bookingStep; // Saltos en la hora de inicio de la reserva en minutos (NULL=1)
 
 	@OneToMany(mappedBy = "business", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@OrderBy("position")
-	private List<Services> services = new ArrayList<>();
+	private List<Service> services = new ArrayList<>();
 	@OneToMany(mappedBy = "business", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Timetable> timetables = new ArrayList<>();
 
@@ -55,4 +54,7 @@ public class Business implements Serializable {
 		this.registrationDate = new Date();
 	}
 
+	public Business(BusinessDto dto) {
+		dto.storeInObject(this);
+	}
 }

@@ -6,16 +6,11 @@ import com.milibrodereservas.citame.global.Base;
 import com.milibrodereservas.citame.model.UserDto;
 import com.milibrodereservas.citame.model.UserRegisterRequest;
 import com.milibrodereservas.citame.repositories.UserRepository;
-import com.milibrodereservas.citame.util.UtilData;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class UserService extends Base {

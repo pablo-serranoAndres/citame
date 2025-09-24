@@ -1,10 +1,7 @@
 package com.milibrodereservas.citame.model;
 
-import com.milibrodereservas.citame.entities.Services;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
 
 @Data
 @NoArgsConstructor

@@ -1,16 +1,12 @@
 package com.milibrodereservas.citame.entities;
 
+import com.milibrodereservas.citame.model.UserDto;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.io.Serializable;
 import java.util.Date;
-
-/**
- * Entity implementation class for Entity: User
- *
- */
 
 @Data
 @Entity
@@ -53,6 +49,10 @@ public class User implements Serializable {
 		super();
 		this.registrationDate = new Date();
 		this.verification = RandomStringUtils.randomAlphanumeric(LENGTH_VERIFICACION);;
+	}
+
+	public User(UserDto dto) {
+		dto.storeInObject(this);
 	}
 
 }

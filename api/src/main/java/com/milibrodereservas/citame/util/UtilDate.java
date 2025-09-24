@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class UtilDate {
+    public static final int MINS_OF_DAY = 24 * 60;
     public static final String DAYS_OF_WEEK = "MTWRFSU";
 
     public static boolean validDayOfWeek(final String validity, LocalDate date) {

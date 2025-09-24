@@ -4,7 +4,6 @@ import com.milibrodereservas.citame.entities.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.Date;
 
 @Data
@@ -20,6 +19,10 @@ public class UserDto extends BaseDto {
 	private Date deactivationDate;
 	private Date emailRegistrationDate;
 	private Date emailVerificationDate;
+
+	public UserDto(Long id) {
+		this.id = id;
+	}
 
 	public UserDto(User user) {
 		super();

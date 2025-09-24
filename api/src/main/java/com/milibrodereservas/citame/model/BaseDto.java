@@ -26,7 +26,7 @@ public abstract class BaseDto extends Base {
 	// Usamos reflexion en este metodo para setear las variables de this objeto
 	// con los valores de las propiedades de entidad del mismo nombre
 	// usando los metodos getter
-	protected void loadFromObject(Object entidad) {
+	public void loadFromObject(Object entidad) {
 		Class<?> targetClass = this.getClass();
 		// Iterar sobre los getter del objeto entidad
 		for (Method getMethod : entidad.getClass().getMethods()) {

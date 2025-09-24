@@ -9,11 +9,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-/**
- * Entity implementation class for Entity: User
- *
- */
-
 @Data
 @NoArgsConstructor
 @ToString(exclude = "business")

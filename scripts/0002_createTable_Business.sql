@@ -20,6 +20,9 @@ IF @tabla_existe = 0 THEN
                            registrationDate datetime(6) COMMENT 'Fecha alta',
                            deactivationDate datetime(6) COMMENT 'Fecha baja (si no null el negocio está desactivado)',
                            bookingDays int COMMENT 'Días posibles de reservas anticipadas (null sin limite)',
+                           prevBookingDays int COMMENT 'Días pasados hoy posible reservar (NULL = 0)',
+                           prevBookingMins int COMMENT 'Minutos pasados desde ahora posible reservar si prevBookingDays = 0 (NULL = 0)',
+                           bookingStep int COMMENT 'Saltos en la hora de inicio de la reserva en minutos (NULL=1)',
                            primary key (id)) engine=InnoDB;
 	ALTER TABLE Business ADD CONSTRAINT UK_Business_idString unique (idString);
 END IF;

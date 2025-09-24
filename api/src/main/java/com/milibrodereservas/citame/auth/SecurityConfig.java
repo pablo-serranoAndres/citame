@@ -28,7 +28,7 @@ public class SecurityConfig {
                                 "/error",
                                 "/v3/api-docs.yaml",      // si usas YAML
                                 "/v3/api-docs/**",        // JSON docs
-                                "/swagger-ui/**")         // contenido static
+                                "/swagger-ui/**")         // contenido static http://localhost:8080/swagger-ui/index.html
                         .permitAll() // permite sin autenticación
                         .anyRequest().authenticated() // el resto necesita autenticación
                 )

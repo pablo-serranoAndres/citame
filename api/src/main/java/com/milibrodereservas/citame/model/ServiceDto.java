@@ -1,6 +1,6 @@
 package com.milibrodereservas.citame.model;
 
-import com.milibrodereservas.citame.entities.Services;
+import com.milibrodereservas.citame.entities.Service;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,7 +18,7 @@ public class ServiceDto extends BaseDto {
 	private Date startDate;
 	private Date endDate;
 
-	public ServiceDto(Services service) {
+	public ServiceDto(Service service) {
 		super();
 		super.loadFromObject(service);
 		if (service.getBusiness() != null) {
