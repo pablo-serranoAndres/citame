@@ -17,9 +17,15 @@ public class BusinessDto extends BaseDto {
 	private Date registrationDate;
 	private Date deactivationDate;
 	private Integer bookingDays;
+	private Integer bookingStep;
 
 	public BusinessDto(Business business) {
 		super();
 		super.loadFromObject(business);
+	}
+
+	public BusinessDto(Long id) {
+		super();
+		this.id = id;
 	}
 }

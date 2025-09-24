@@ -40,14 +40,18 @@ public class Appointment implements Serializable {
 	private LocalDateTime created; // Fecha y hora registro reserva
 	private LocalDateTime modificated; // Fecha y hora última modificación
 	private LocalDateTime finished; // Fecha y hora cierre registro (realizado,anulado, no presentado...)
-	private boolean confirmed; // Reserva confirmada por negocio
-	private boolean realized; // Servicio realizado
-	private boolean notPresented; // Cliente no se presentó al servicio
-	private boolean cancelled; // Reserva anulada
+	private Boolean confirmed; // Reserva confirmada por negocio
+	private Boolean realized; // Servicio realizado
+	private Boolean notPresented; // Cliente no se presentó al servicio
+	private Boolean cancelled; // Reserva anulada
 
 	public Appointment() {
 		super();
 		this.created = LocalDateTime.now();
+		this.confirmed = false;
+		this.realized = false;
+		this.notPresented = false;
+		this.cancelled = false;
 	}
 
 	public Appointment(AppointmentDto dto) {

@@ -47,4 +47,14 @@ public class Service implements Serializable {
 	public Service(ServiceDto dto) {
 		dto.storeInObject(this);
 	}
+
+	public Integer effectiveBookingStep() {
+		if (bookingStep != null) {
+			return bookingStep;
+		} else if (business.getBookingStep() != null) {
+			return business.getBookingStep();
+		} else {
+			return 1;
+		}
+	}
 }

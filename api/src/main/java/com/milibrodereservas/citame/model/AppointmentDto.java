@@ -20,10 +20,10 @@ public class AppointmentDto extends BaseDto {
 	private LocalDateTime created;
 	private LocalDateTime modificated;
 	private LocalDateTime finished;
-	private boolean confirmed;
-	private boolean realized;
-	private boolean notPresented;
-	private boolean cancelled;
+	private Boolean confirmed;
+	private Boolean realized;
+	private Boolean notPresented;
+	private Boolean cancelled;
 
 	public AppointmentDto(Appointment appointment) {
 		super();
@@ -34,5 +34,10 @@ public class AppointmentDto extends BaseDto {
 		if (appointment.getUser() != null) {
 			user = new UserDto(appointment.getUser());
 		}
+	}
+
+	public AppointmentDto(Long id) {
+		super();
+		this.id = id;
 	}
 }

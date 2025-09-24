@@ -76,7 +76,6 @@ public class ServiceService extends Base {
             int bookingDays = 10; // TODO valor defecto aplicacion
             int prevBookingDays = 0;
             int prevBookingMins = 0;
-            int bookingStep = 1;
             if (service.getBookingDays() != null) {
                 bookingDays = service.getBookingDays();
             } else if (service.getBusiness().getBookingDays() != null) {
@@ -94,11 +93,7 @@ public class ServiceService extends Base {
                     prevBookingMins = service.getBusiness().getPrevBookingMins();
                 }
             }
-            if (service.getBookingStep() != null) {
-                bookingStep = service.getBookingStep();
-            } else if (service.getBusiness().getBookingStep() != null) {
-                bookingStep = service.getBusiness().getBookingStep();
-            }
+            int bookingStep = service.effectiveBookingStep();
 
             LocalDate today = LocalDate.now();
             LocalTime startTime = LocalTime.now().plusMinutes(prevBookingMins);

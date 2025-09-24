@@ -3,6 +3,7 @@ package com.milibrodereservas.citame.util;
 import jakarta.persistence.Column;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 
 public class UtilData {
     public static Integer getFieldLength(Class<?> entityClass, String fieldName) {
@@ -16,6 +17,11 @@ public class UtilData {
             throw new RuntimeException("Campo no encontrado: " + fieldName, e);
         }
         return null; // No tiene @Column o no especifica length
+    }
+
+    // Comprueba que una colección tenga datos
+    public static boolean isEmpty(Collection list) {
+        return ((list == null) || list.isEmpty());
     }
 
     // Valida el valor de un parámetro numérico

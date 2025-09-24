@@ -16,14 +16,17 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @RestController
@@ -199,17 +202,51 @@ public class OperationController extends Base {
     public ResponseEntity<AppointmentPutReply> putAppointment(@RequestBody AppointmentRequest appointment, @AuthenticationPrincipal CustomUserDetails user) {
         logger.info("PUT /appointment/put {} {}", appointment, user.getUsername());
 
-        // Guardar registro en appointments
-        ServiceDto service = serviceService.getServiceById(appointment.getIdService());
+        // Preparando objeto cita...
         AppointmentDto dto = new AppointmentDto();
+        ServiceDto service = serviceService.getServiceById(appointment.getIdService());
         dto.setService(service);
         dto.setUser(new UserDto(user.getUserId()));
-        dto.setBookingDate(appointment.getBookingDate());
-        dto.setStartTime(appointment.getStartTime());
-        dto.setEndTime(appointment.getStartTime());
+
+        // Comprobar que la cita esta disponible
+        ServiceAvailabilityReply availability = serviceService.getAvailability(appointment.getIdService());
+        LocalDate bookingDate = null;
+        LocalTime bookingTime = null;
+        LocalTime endTime = null;
+        for (Iterator<ServiceAvailabilityItem> itDate = availability.getAvailability().iterator();
+             (bookingDate == null) && itDate.hasNext(); ) {
+            ServiceAvailabilityItem item = itDate.next();
+            if (!item.getDate().isBefore(appointment.getBookingDate())) {
+                for (Iterator<ServiceAvailabilityDetail> itDetail = item.getDetails().iterator();
+                     (bookingDate == null) && itDetail.hasNext(); ) {
+                    ServiceAvailabilityDetail detail = itDetail.next();
+                    if (item.getDate().isAfter(appointment.getBookingDate()) ||
+                    !detail.getStart().isBefore(appointment.getStartTime())) {
+                        bookingDate = item.getDate();
+                        bookingTime = detail.getStart();
+                        endTime = detail.getEnd();
+                    }
+                }
+            }
+        }
+        dto.setBookingDate(bookingDate);
+        dto.setStartTime(bookingTime);
+        dto.setEndTime(endTime);
+        LocalTime limitTime = appointment.getStartTime().plusMinutes(service.effectiveBookingStep());
+        if (bookingDate.isAfter(appointment.getBookingDate()) ||
+                (limitTime.isAfter(bookingTime) && bookingTime.isAfter(limitTime))) { // fuera de rango
+            AppointmentPutReply reply = new AppointmentPutReply(dto, user);
+            reply.setAvailability(availability.getAvailability());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(reply);
+        }
+
+        // Guardar registro en appointments
         dto = appointmentService.create(dto);
 
         // Guardar registros en parameters_service_value y parameters_user_value
+        if (appointment.getParametersValues() == null) {
+            appointment.setParametersValues(new ArrayList<>());
+        }
         List<ParameterServiceDto> params = parameterService.getParametersByService(appointment.getIdService());
         for (ParameterServiceDto param : params) {
             ParameterValueRequest pv = null;

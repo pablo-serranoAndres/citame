@@ -10,11 +10,12 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 public class AppointmentPutReply extends BaseDto{
-    @Schema(description = "Identificador cita")
+    @Schema(description = "Identificador cita. Si null no admitida")
     private Long id;
     @Schema(description = "Negocio reservado")
     private BusinessReply business;
@@ -41,13 +42,15 @@ public class AppointmentPutReply extends BaseDto{
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime finished;
     @Schema(description = "Cita confirmada por negocio")
-    private boolean confirmed;
+    private Boolean confirmed;
     @Schema(description = "Servicio realizado")
-    private boolean realized;
+    private Boolean realized;
     @Schema(description = "Usuario no presentado a negocio")
-    private boolean notPresented;
+    private Boolean notPresented;
     @Schema(description = "Cita cancelada")
-    private boolean cancelled;
+    private Boolean cancelled;
+    @Schema(description = "Lista de citas disponibles (si no aceptada)")
+    private List<ServiceAvailabilityItem> availability;
 
     public AppointmentPutReply(Appointment appointment) {
         super();
@@ -65,9 +68,9 @@ public class AppointmentPutReply extends BaseDto{
         this.created = dto.getCreated();
         this.modificated = dto.getModificated();
         this.finished = dto.getFinished();
-        this.confirmed = dto.isConfirmed();
-        this.realized = dto.isRealized();
-        this.notPresented = dto.isNotPresented();
-        this.cancelled = dto.isCancelled();
+        this.confirmed = dto.getConfirmed();
+        this.realized = dto.getRealized();
+        this.notPresented = dto.getNotPresented();
+        this.cancelled = dto.getCancelled();
     }
 }
