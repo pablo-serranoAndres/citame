@@ -83,13 +83,6 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.18.0</version>
-		</dependency>
-
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
@@ -127,8 +120,14 @@
 			<artifactId>commons-validator</artifactId>
 			<version>1.10.0</version>
 		</dependency>
-	</dependencies>
 
+		<!-- https://mvnrepository.com/artifact/org.eclipse.angus/angus-mail -->
+		<dependency>
+			<groupId>org.eclipse.angus</groupId>
+			<artifactId>angus-mail</artifactId>
+			<version>2.0.4</version>
+		</dependency>
+	</dependencies>
 	<build>
 		<plugins>
 			<plugin>

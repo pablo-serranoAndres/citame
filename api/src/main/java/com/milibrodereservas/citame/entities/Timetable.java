@@ -1,5 +1,6 @@
 package com.milibrodereservas.citame.entities;
 
+import com.milibrodereservas.citame.model.TimetableDto;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,4 +40,9 @@ public class Timetable implements Serializable {
 	private LocalTime closing; // Hora de cierre
 	private LocalDate startDate; // Fecha comienzo validez horario (NULL sin limite)
 	private LocalDate endDate; // Fecha final validez horario (NULL sin limite)
+
+	public Timetable(TimetableDto dto) {
+		this();
+		dto.storeInObject(this);
+	}
 }

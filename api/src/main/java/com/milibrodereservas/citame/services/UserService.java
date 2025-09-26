@@ -12,6 +12,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
+
 @Service
 public class UserService extends Base {
     public static final int FIELD_EMAIL_OR_PHONE = 1;
@@ -21,13 +23,22 @@ public class UserService extends Base {
     public static final int FIELD_PASSWORD = 16;
 
     @Autowired
-    private UserRepository repository;
+    private UserRepository repo;
     @Autowired
     private JwtUtil jwtUtil;
 
+    public UserDto findById(Long id) {
+        try {
+            User entity = repo.findById(id).orElseThrow();
+            return new UserDto(entity);
+        } catch (NoSuchElementException e) {
+            return null;
+        }
+    }
+
     public String login (String userName, String password) {
         logger.debug("UserService.login {}", userName);
-        User user = repository.findByEmailOrPhone(userName, userName).orElse(null);
+        User user = repo.findByEmailOrPhone(userName, userName).orElse(null);
         if (user != null) {
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             // Verificar (en login):
@@ -45,13 +56,13 @@ public class UserService extends Base {
     public UserDto register (UserRegisterRequest user) throws ValidationException {
         logger.debug("UserService.register {} - {}", user.getEmail(), user.getPhone());
         if (!StringUtils.isBlank(user.getEmail())
-                && repository.findByEmailOrPhone(user.getEmail(), user.getEmail())
+                && repo.findByEmailOrPhone(user.getEmail(), user.getEmail())
                 .orElse(null) != null) {
             throw new ValidationException("email already registered",
                     ValidationException.DUPLICATED, "email");
         }
         if (!StringUtils.isBlank(user.getPhone())
-                && repository.findByEmailOrPhone(user.getPhone(), user.getPhone())
+                && repo.findByEmailOrPhone(user.getPhone(), user.getPhone())
                 .orElse(null) != null) {
             throw new ValidationException("phone already registered",
                     ValidationException.DUPLICATED, "phone");
@@ -65,11 +76,10 @@ public class UserService extends Base {
         String hashedPassword = encoder.encode(user.getPassword());
         entity.setPassword(hashedPassword);
 
-        entity = repository.save(entity);
+        entity = repo.save(entity);
         if (entity == null) {
             throw new ValidationException("error persisting entity", ValidationException.DB_GENERIC_ERROR, "");
         }
         return new UserDto(entity);
     }
-
 }

@@ -1,5 +1,6 @@
 package com.milibrodereservas.citame.entities;
 
+import com.milibrodereservas.citame.model.ParameterDto;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -44,4 +45,9 @@ public class Parameter implements Serializable {
 	private String defaultValue; // Valor por defecto del parámetro
 	@Column(length=512)
 	private String auxValue; // Varios dependiendo de typeValue
+
+	public Parameter(ParameterDto dto) {
+		this();
+		dto.storeInObject(this);
+	}
 }

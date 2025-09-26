@@ -34,6 +34,8 @@ import java.util.List;
 @Tag(name = "Operación", description = "Operaciones relacionadas con la funcionalidad de usuario de la aplicación")
 public class OperationController extends Base {
     @Autowired
+    private UserService userService;
+    @Autowired
     private ServiceService serviceService;
     @Autowired
     private ParametersService parameterService;
@@ -43,6 +45,8 @@ public class OperationController extends Base {
     private BusinessRepository businessRepository;
     @Autowired
     private AppointmentService appointmentService;
+    @Autowired
+    private MessageService messageService;
 
     @GetMapping("/services/{business}")
     @Operation(summary = "Lista servicios disponibles",
@@ -156,12 +160,12 @@ public class OperationController extends Base {
                     ValidationException.FORMAT_FIELD_BAD, "startDate");
         }
         try {
-            end = LocalDate.parse(endDate);
+            end = (endDate != null) ? LocalDate.parse(endDate) : start;
         } catch (DateTimeParseException e) {
             throw new ValidationException("endDate could not be parsed to a date (use format yyyy-mm-dd)",
                     ValidationException.FORMAT_FIELD_BAD, "endDate");
         }
-        if (start.compareTo(end) > 0) {
+        if (start.isAfter(end)) {
             throw new ValidationException("endDate cannot be earlier than startDate",
                     ValidationException.FORMAT_FIELD_BAD, "startDate|endDate");
         }
@@ -201,6 +205,8 @@ public class OperationController extends Base {
     @Transactional
     public ResponseEntity<AppointmentPutReply> putAppointment(@RequestBody AppointmentRequest appointment, @AuthenticationPrincipal CustomUserDetails user) {
         logger.info("PUT /appointment/put {} {}", appointment, user.getUsername());
+
+        UserDto userDto = userService.findById(user.getUserId());
 
         // Preparando objeto cita...
         AppointmentDto dto = new AppointmentDto();
@@ -282,6 +288,14 @@ public class OperationController extends Base {
             }
             throw new ValidationException("Parámetros no disponibles para servicio",
                     ValidationException.NOT_FOUND_PARAM, fields);
+        }
+
+        if (StringUtils.isNotBlank(appointment.getMessage())) {
+            MessageDto msg = new MessageDto(dto, userDto, service.getBusiness(), null, true, appointment.getMessage());
+            msg = messageService.create(msg);
+            if (msg == null) {
+                throw new ValidationException("Mensaje no se pudo enviar", ValidationException.DB_GENERIC_ERROR, "message");
+            }
         }
 
         AppointmentPutReply reply = new AppointmentPutReply(dto, user);

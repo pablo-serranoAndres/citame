@@ -22,6 +22,7 @@ IF @tabla_existe = 0 THEN
                              deactivationDate datetime(6) COMMENT 'Fecha de baja (si no null el usuario está inactivo)',
                              emailRegistrationDate datetime(6) COMMENT 'Fecha de registro de email', 
                              emailVerificationDate datetime(6) COMMENT 'Fecha de verificación de email (si null pendiente de verificar y no se admite para login)',
+                             mailMessages tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Envío de mensajes por email',
                              primary key (id)) engine=InnoDB;
 	ALTER TABLE User_login ADD CONSTRAINT UK_User_login_email unique (email);
 	ALTER TABLE User_login ADD CONSTRAINT UK_User_login_phone unique (phone);

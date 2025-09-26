@@ -1,14 +1,19 @@
 package com.milibrodereservas.citame.entities;
 
+import com.milibrodereservas.citame.model.BaseDto;
 import com.milibrodereservas.citame.model.UserDto;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
+@ToString(exclude = {"userBusinesses"})
 @Entity
 @Table (name = "user_login")
 @TableGenerator(
@@ -44,15 +49,26 @@ public class User implements Serializable {
 	private Date deactivationDate;
 	private Date emailRegistrationDate;
 	private Date emailVerificationDate;
+	private Boolean mailMessages; // Envío de mensajes por email
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<UserBusiness> userBusinesses;
 
 	public User() {
 		super();
 		this.registrationDate = new Date();
-		this.verification = RandomStringUtils.randomAlphanumeric(LENGTH_VERIFICACION);;
+		this.verification = RandomStringUtils.randomAlphanumeric(LENGTH_VERIFICACION);
+		this.mailMessages = false;
+	}
+
+	public User(Long id) {
+		super();
+		this.id = id;
 	}
 
 	public User(UserDto dto) {
 		dto.storeInObject(this);
+		userBusinesses = BaseDto.convertToListEntity(dto.getUserBusinesses(), UserBusiness.class);
 	}
 
 }

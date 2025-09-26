@@ -1,5 +1,6 @@
 package com.milibrodereservas.citame.model;
 
+import com.milibrodereservas.citame.entities.UserBusiness;
 import com.milibrodereservas.citame.global.Base;
 import com.milibrodereservas.citame.global.RepositoryRegistry;
 import com.milibrodereservas.citame.global.SpringContext;
@@ -178,6 +179,33 @@ public abstract class BaseDto extends Base {
 						item = constructor.newInstance(entidad);
 					} catch (Exception ex) {
 						Base.throwException("No se pudo construir Dto", ex);
+					}
+					listaRet.add(item);
+				}
+			}
+			return listaRet;
+		}
+		return null;
+	}
+
+	public static <Entidad, DTO extends BaseDto> List<Entidad> convertToListEntity(List<DTO> dtos, Class<Entidad> entidadClass) {
+		if (dtos != null) {
+			List<Entidad> listaRet = new ArrayList<>();
+			if (!dtos.isEmpty()) {
+				// Obtener el constructor Entidad(Dto)
+				Constructor<Entidad> constructor = null;
+				try {
+					constructor = entidadClass.getConstructor(dtos.get(0).getClass());
+				} catch (NoSuchMethodException e) {
+					Base.throwException("No se pudo obtener constructor con parámetro Dto", e);
+				}
+
+				for (DTO dto : dtos) {
+					Entidad item = null;
+					try {
+						item = constructor.newInstance(dto);
+					} catch (Exception ex) {
+						Base.throwException("No se pudo construir Entidad", ex);
 					}
 					listaRet.add(item);
 				}

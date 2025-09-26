@@ -23,7 +23,7 @@ public class TimetableDto extends BaseDto {
 		super();
 		super.loadFromObject(timetable);
 		if (timetable.getBusiness() != null) {
-			business = new BusinessDto(timetable.getBusiness());
+			business = new BusinessDto(timetable.getBusiness(), false);
 		}
 	}
 }

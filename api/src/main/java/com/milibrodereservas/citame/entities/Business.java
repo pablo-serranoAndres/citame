@@ -1,5 +1,6 @@
 package com.milibrodereservas.citame.entities;
 
+import com.milibrodereservas.citame.model.BaseDto;
 import com.milibrodereservas.citame.model.BusinessDto;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -11,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@ToString(exclude = {"services", "timetables"})
+@ToString(exclude = {"services", "timetables", "userBusinesses"})
 @Entity
 @Table (name = "Business")
 @TableGenerator(
@@ -42,19 +43,30 @@ public class Business implements Serializable {
 	private Integer prevBookingDays; // Días pasados hoy posible reservar (NULL = 0)
 	private Integer prevBookingMins; // Minutos pasados desde ahora posible reservar si prevBookingDays = 0 (NULL = 0)
 	private Integer bookingStep; // Saltos en la hora de inicio de la reserva en minutos (NULL=1)
+	private Boolean mailMessages; // Envío de mensajes por email
 
 	@OneToMany(mappedBy = "business", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@OrderBy("position")
 	private List<Service> services = new ArrayList<>();
 	@OneToMany(mappedBy = "business", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Timetable> timetables = new ArrayList<>();
+	@OneToMany(mappedBy = "business", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<UserBusiness> userBusinesses = new ArrayList<>();
 
 	public Business() {
 		super();
 		this.registrationDate = new Date();
 	}
 
+	public Business(Long id) {
+		super();
+		this.id = id;
+	}
+
 	public Business(BusinessDto dto) {
 		dto.storeInObject(this);
+		services = BaseDto.convertToListEntity(dto.getServices(), Service.class);
+		timetables = BaseDto.convertToListEntity(dto.getTimetables(), Timetable.class);
+		userBusinesses = BaseDto.convertToListEntity(dto.getUserBusinesses(), UserBusiness.class);
 	}
 }

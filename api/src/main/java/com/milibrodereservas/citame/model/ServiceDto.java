@@ -26,7 +26,7 @@ public class ServiceDto extends BaseDto {
 		super();
 		super.loadFromObject(service);
 		if (service.getBusiness() != null) {
-			business = new BusinessDto(service.getBusiness());
+			business = new BusinessDto(service.getBusiness(), false);
 		}
 	}
 

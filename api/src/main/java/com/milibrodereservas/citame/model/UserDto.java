@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -19,6 +20,9 @@ public class UserDto extends BaseDto {
 	private Date deactivationDate;
 	private Date emailRegistrationDate;
 	private Date emailVerificationDate;
+	private Boolean mailMessages;
+
+	private List<UserBusinessDto> userBusinesses;
 
 	public UserDto(Long id) {
 		this.id = id;
@@ -27,5 +31,7 @@ public class UserDto extends BaseDto {
 	public UserDto(User user) {
 		super();
 		super.loadFromObject(user);
+
+		userBusinesses = convertToListDto(user.getUserBusinesses(), UserBusinessDto.class);
 	}
 }
